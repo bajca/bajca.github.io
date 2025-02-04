@@ -11,17 +11,24 @@
             background-color: #f4f4f4;
             padding: 20px;
         }
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
         h1 {
             color: #d9534f;
+            font-size: 3rem;
         }
         #countdown {
             font-size: 2rem;
-            margin-top: 20px;
+            margin-top: 10px;
             font-weight: bold;
         }
         .container {
             max-width: 600px;
-            margin: auto;
             background: white;
             padding: 20px;
             border-radius: 10px;
@@ -36,11 +43,15 @@
             text-decoration: none;
             border-radius: 5px;
         }
-        .image-container {
+        .image-gallery {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
             margin-top: 20px;
         }
-        .image-container img {
-            width: 100%;
+        .image-gallery img {
+            width: 180px;
+            height: auto;
             border-radius: 10px;
         }
         .tracker {
@@ -50,20 +61,22 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="main-container">
         <h1>Bára běží půlmaraton</h1>
-        <p>Odpočet do startu:</p>
         <div id="countdown"></div>
-        <a class="event-link" href="https://www.runczech.com/cs/akce/generali-1-2maraton-praha-2025" target="_blank">Více o závodu</a>
-        <div class="image-container">
-            <img src="https://images.unsplash.com/photo-1520975916090-3105956dac38?auto=format&fit=crop&w=600" alt="Praha a běhání">
+        <div class="image-gallery">
+            <img src="https://images.unsplash.com/photo-1551892589-865f69869478?auto=format&fit=crop&w=200" alt="Běžec na závodě">
+            <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=200" alt="Unavená běžkyně">
+            <img src="https://images.unsplash.com/photo-1605328037533-0c7f2c4e856d?auto=format&fit=crop&w=200" alt="Běžci v tréninku">
         </div>
-        <div class="tracker">
-            <p>Sleduj jak mi to jde:</p>
-            <iframe height='454' width='300' frameborder='0' allowtransparency='true' scrolling='no' src='https://www.strava.com/athletes/70581435/latest-rides/ed8d1dec8bea5ea1e6ea9922c11ecc26ef459a6c'></iframe>
+        <div class="container">
+            <a class="event-link" href="https://www.runczech.com/cs/akce/generali-1-2maraton-praha-2025" target="_blank">Více o závodu</a>
+            <div class="tracker">
+                <p>Sleduj jak mi to jde:</p>
+                <iframe height='454' width='300' frameborder='0' allowtransparency='true' scrolling='no' src='https://www.strava.com/athletes/70581435/latest-rides/ed8d1dec8bea5ea1e6ea9922c11ecc26ef459a6c'></iframe>
+            </div>
         </div>
     </div>
-
     <script>
         function updateCountdown() {
             const raceDate = new Date("April 5, 2025 10:00:00").getTime();
