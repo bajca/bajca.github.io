@@ -7,89 +7,115 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f4f4f4;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
             padding: 20px;
+            background-color: #f5f5f5;
+            text-align: center;
         }
-        .main-container {
+        .container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 40px;
+        }
+        h2 {
+            color: #2c3e50;
+            font-size: 1.8em;
+            margin: 30px 0;
+        }
+        .countdown-label {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .countdown-box {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .countdown-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #e74c3c;
+            margin-bottom: 5px;
+        }
+        .countdown-unit {
+            font-size: 0.9em;
+            color: #7f8c8d;
+            text-transform: uppercase;
+        }
+        .strava-widgets {
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-        }
-        h1 {
-            color: #d9534f;
-            font-size: 3rem;
-        }
-        #countdown {
-            font-size: 2rem;
-            margin-top: 10px;
-            font-weight: bold;
-        }
-        .container {
-            max-width: 600px;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-        }
-        .event-link {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 10px 20px;
-            background: #5bc0de;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-        }
-        .image-gallery {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-top: 20px;
-        }
-        .image-gallery img {
-            width: 180px;
-            height: auto;
-            border-radius: 10px;
-        }
-        .tracker {
-            margin-top: 30px;
-            font-size: 1.2rem;
+            gap: 20px;
         }
     </style>
 </head>
 <body>
-    <div class="main-container">
+    <div class="container">
         <h1>Bára běží půlmaraton</h1>
-        <div id="countdown"></div>
-        <div class="image-gallery">
-            <img src="https://images.unsplash.com/photo-1551892589-865f69869478?auto=format&fit=crop&w=200" alt="Běžec na závodě">
-            <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=200" alt="Unavená běžkyně">
-            <img src="https://images.unsplash.com/photo-1605328037533-0c7f2c4e856d?auto=format&fit=crop&w=200" alt="Běžci v tréninku">
-        </div>
-        <div class="container">
-            <a class="event-link" href="https://www.runczech.com/cs/akce/generali-1-2maraton-praha-2025" target="_blank">Více o závodu</a>
-            <div class="tracker">
-                <p>Sleduj jak mi to jde:</p>
-                <iframe height='454' width='300' frameborder='0' allowtransparency='true' scrolling='no' src='https://www.strava.com/athletes/70581435/latest-rides/ed8d1dec8bea5ea1e6ea9922c11ecc26ef459a6c'></iframe>
+        <div class="countdown-label">
+            <div class="countdown-box">
+                <div id="days" class="countdown-value">00</div>
+                <div class="countdown-unit">Dní</div>
+            </div>
+            <div class="countdown-box">
+                <div id="hours" class="countdown-value">00</div>
+                <div class="countdown-unit">Hodin</div>
+            </div>
+            <div class="countdown-box">
+                <div id="minutes" class="countdown-value">00</div>
+                <div class="countdown-unit">Minut</div>
+            </div>
+            <div class="countdown-box">
+                <div id="seconds" class="countdown-value">00</div>
+                <div class="countdown-unit">Sekund</div>
             </div>
         </div>
     </div>
+
+    <div class="container">
+        <h2>Sleduj, jak mi to jde:</h2>
+        <div class="strava-widgets">
+            <iframe height='454' width='300' frameborder='0' allowtransparency='true' scrolling='no' src='https://www.strava.com/athletes/70581435/latest-rides/ed8d1dec8bea5ea1e6ea9922c11ecc26ef459a6c'></iframe>
+            <iframe height='160' width='300' frameborder='0' allowtransparency='true' scrolling='no' src='https://www.strava.com/athletes/70581435/activity-summary/ed8d1dec8bea5ea1e6ea9922c11ecc26ef459a6c'></iframe>
+        </div>
+    </div>
+
     <script>
         function updateCountdown() {
-            const raceDate = new Date("April 5, 2025 10:00:00").getTime();
-            const now = new Date().getTime();
-            const timeLeft = raceDate - now;
+            const targetDate = new Date('2025-04-05T10:00:00');
+            const now = new Date();
+            const difference = targetDate - now;
 
-            const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+            if (difference <= 0) {
+                document.querySelector('.countdown-label').innerHTML = '<h2>Závod začal! Držíme palce! 🎉</h2>';
+                return;
+            }
 
-            document.getElementById("countdown").innerHTML = `${days} dní ${hours} hodin ${minutes} minut ${seconds} sekund`;
+            const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+            document.getElementById('days').textContent = String(days).padStart(2, '0');
+            document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+            document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+            document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
         }
+
         setInterval(updateCountdown, 1000);
         updateCountdown();
     </script>
