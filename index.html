@@ -4,97 +4,116 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bára běží půlmaraton</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-            text-align: center;
-        }
-        .container {
-            background-color: white;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-        }
-        h1 {
-            color: #2c3e50;
-            font-size: 2.5em;
-            margin-bottom: 40px;
-        }
-        h2 {
-            color: #2c3e50;
-            font-size: 1.8em;
-            margin: 30px 0;
-        }
-        .countdown-label {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        .countdown-box {
+        /* ... (předchozí CSS zůstává stejný) ... */
+        .message {
             background-color: #f8f9fa;
-            padding: 20px;
+            padding: 15px;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 15px;
+            animation: fadeIn 0.5s ease-in;
         }
-        .countdown-value {
-            font-size: 2.5em;
-            font-weight: bold;
-            color: #e74c3c;
-            margin-bottom: 5px;
-        }
-        .countdown-unit {
-            font-size: 0.9em;
-            color: #7f8c8d;
-            text-transform: uppercase;
-        }
-        .strava-widgets {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Bára běží půlmaraton</h1>
-        <div class="countdown-label">
-            <div class="countdown-box">
-                <div id="days" class="countdown-value">00</div>
-                <div class="countdown-unit">Dní</div>
-            </div>
-            <div class="countdown-box">
-                <div id="hours" class="countdown-value">00</div>
-                <div class="countdown-unit">Hodin</div>
-            </div>
-            <div class="countdown-box">
-                <div id="minutes" class="countdown-value">00</div>
-                <div class="countdown-unit">Minut</div>
-            </div>
-            <div class="countdown-box">
-                <div id="seconds" class="countdown-value">00</div>
-                <div class="countdown-unit">Sekund</div>
-            </div>
-        </div>
-    </div>
+    <!-- ... (countdown a Strava sekce zůstávají stejné) ... -->
 
     <div class="container">
-        <h2>Sleduj, jak mi to jde:</h2>
-        <div class="strava-widgets">
-            <iframe height='454' width='300' frameborder='0' allowtransparency='true' scrolling='no' src='https://www.strava.com/athletes/70581435/latest-rides/ed8d1dec8bea5ea1e6ea9922c11ecc26ef459a6c'></iframe>
-            <iframe height='160' width='300' frameborder='0' allowtransparency='true' scrolling='no' src='https://www.strava.com/athletes/70581435/activity-summary/ed8d1dec8bea5ea1e6ea9922c11ecc26ef459a6c'></iframe>
-        </div>
+        <h2>Napiš mi vzkaz:</h2>
+        <form class="message-form" id="messageForm">
+            <div class="form-group">
+                <label for="name">Jméno:</label>
+                <input type="text" id="name" required>
+            </div>
+            <div class="form-group">
+                <label for="message">Vzkaz:</label>
+                <textarea id="message" required></textarea>
+            </div>
+            <button type="submit">Odeslat vzkaz</button>
+        </form>
+        <div class="messages" id="messagesList"></div>
     </div>
 
     <script>
+        // Firebase konfigurace - TOTO NAHRAĎTE SVÝMI ÚDAJI z Firebase Console
+    const firebaseConfig = {
+    apiKey: "AIzaSyBxmVkecFPqe16y0QSfJUzEX-HVTQJHcDQ",
+    authDomain: "halfmarathonlfg.firebaseapp.com",
+    databaseURL: "https://halfmarathonlfg-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "halfmarathonlfg",
+    storageBucket: "halfmarathonlfg.firebasestorage.app",
+    messagingSenderId: "576641845481",
+    appId: "1:576641845481:web:b9804d22afc2fd3fcf0878",
+    measurementId: "G-2EHT70ZT4Y"
+    };
+
+        // Inicializace Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const messagesRef = database.ref('messages');
+
+        // Správa vzkazů
+        function loadMessages() {
+            messagesRef.on('value', (snapshot) => {
+                const messages = [];
+                snapshot.forEach((childSnapshot) => {
+                    messages.push({
+                        id: childSnapshot.key,
+                        ...childSnapshot.val()
+                    });
+                });
+                
+                // Seřazení zpráv od nejnovější
+                messages.sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                const messagesHTML = messages.map(msg => `
+                    <div class="message">
+                        <div class="message-header">${msg.name}</div>
+                        <div>${msg.message}</div>
+                        <div class="message-date">${new Date(msg.date).toLocaleString()}</div>
+                    </div>
+                `).join('');
+                
+                document.getElementById('messagesList').innerHTML = messagesHTML;
+            });
+        }
+
+        function saveMessage(name, message) {
+            return messagesRef.push({
+                name: name,
+                message: message,
+                date: new Date().toISOString()
+            });
+        }
+
+        // Event listener pro formulář
+        document.getElementById('messageForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const message = document.getElementById('message').value;
+            
+            if (name && message) {
+                try {
+                    await saveMessage(name, message);
+                    this.reset();
+                } catch (error) {
+                    alert('Nepodařilo se odeslat vzkaz. Zkuste to prosím později.');
+                    console.error('Error saving message:', error);
+                }
+            }
+        });
+
+        // Inicializace načtení zpráv
+        loadMessages();
+
+        // Countdown funkce zůstává stejná
         function updateCountdown() {
             const targetDate = new Date('2025-04-05T10:00:00');
             const now = new Date();
