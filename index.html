@@ -39,37 +39,57 @@
         }
         .message {
             background: linear-gradient(135deg, #ff9a9e, #fad0c4);
-            padding: 15px;
+            padding: 10px;
             border-radius: 8px;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
             color: #333;
             font-weight: bold;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         .message-header {
-            font-size: 1.2rem;
+            font-size: 1rem;
             font-weight: bold;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
         }
         .message-date {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             color: #555;
+            margin-top: 3px;
+        }
+        .reply-container {
             margin-top: 5px;
+            padding-left: 20px;
+            border-left: 2px solid #d9534f;
+        }
+        .delete-btn, .reply-btn {
+            background-color: #d9534f;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-left: 5px;
         }
     </style>
 </head>
 <body>
     <div class="main-container">
-        <h1>Bára běží půlmaraton</h1>
+        <h1>Bára poběží půlmaraton</h1>
         <div id="countdown"></div>
         <h2>Sleduj jak mi to jde:</h2>
         <iframe height='454' width='300' frameborder='0' allowtransparency='true' scrolling='no' src='https://www.strava.com/athletes/70581435/latest-rides/ed8d1dec8bea5ea1e6ea9922c11ecc26ef459a6c'></iframe>
         <div class="container">
-            <h2>Napiš mi vzkaz:</h2>
+            <h2>Napiš mi:</h2>
             <form id="messageForm">
-                <input type="text" id="name" placeholder="Jméno" required>
-                <textarea id="message" placeholder="Vzkaz" required></textarea>
-                <button type="submit">Odeslat vzkaz</button>
+                <div class="form-group">
+                    <input type="text" id="name" placeholder="Jméno" required>
+                    <textarea id="message" placeholder="Vzkaz" required></textarea>
+                </div>
+                <div class="form-container">
+                    <button type="submit">Odeslat vzkaz</button>
+                </div>
             </form>
             <div id="messagesList"></div>
         </div>
@@ -92,15 +112,43 @@
             const name = document.getElementById('name').value;
             const message = document.getElementById('message').value;
             if (name && message) {
-                await messagesRef.push({ name, message, date: new Date().toISOString() });
+                await messagesRef.push({ name, message, date: new Date().toISOString(), replies: [] });
                 this.reset();
             }
         });
+        function deleteMessage(id) {
+            messagesRef.child(id).remove();
+        }
+        function replyMessage(id) {
+            const replyText = prompt("Napiš odpověď:");
+            if (replyText) {
+                messagesRef.child(id).child("replies").push({ name: "Bára", message: replyText, date: new Date().toISOString() });
+            }
+        }
         messagesRef.on('value', (snapshot) => {
             let messagesHTML = '';
             snapshot.forEach(childSnapshot => {
                 const msg = childSnapshot.val();
-                messagesHTML += `<div class="message"><div class="message-header">${msg.name}</div><div>${msg.message}</div><div class="message-date">${new Date(msg.date).toLocaleString()}</div></div>`;
+                let repliesHTML = '';
+                if (msg.replies) {
+                    Object.values(msg.replies).forEach(reply => {
+                        repliesHTML += `<div class="reply-container">
+                                            <div class="message-header">${reply.name}</div>
+                                            <div>${reply.message}</div>
+                                            <div class="message-date">${new Date(reply.date).toLocaleString()}</div>
+                                        </div>`;
+                    });
+                }
+                messagesHTML += `<div class="message">
+                                    <div>
+                                        <div class="message-header">${msg.name}</div>
+                                        <div>${msg.message}</div>
+                                        <div class="message-date">${new Date(msg.date).toLocaleString()}</div>
+                                    </div>
+                                    <button class="delete-btn" onclick="deleteMessage('${childSnapshot.key}')">Smazat</button>
+                                    <button class="reply-btn" onclick="replyMessage('${childSnapshot.key}')">Odpovědět</button>
+                                </div>
+                                ${repliesHTML}`;
             });
             document.getElementById('messagesList').innerHTML = messagesHTML;
         });
