@@ -4,137 +4,92 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bára běží půlmaraton</title>
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <style>
-        /* ... (předchozí CSS zůstává stejný) ... */
-        .message {
-            background-color: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            animation: fadeIn 0.5s ease-in;
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            padding: 20px;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        h1 {
+            color: #d9534f;
+            font-size: 3rem;
+        }
+        #countdown {
+            font-size: 2rem;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        .container {
+            max-width: 600px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        .event-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #5bc0de;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .image-gallery {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .image-gallery img {
+            width: 180px;
+            height: auto;
+            border-radius: 10px;
+        }
+        .tracker {
+            margin-top: 30px;
+            font-size: 1.2rem;
         }
     </style>
 </head>
 <body>
-    <!-- ... (countdown a Strava sekce zůstávají stejné) ... -->
-
-    <div class="container">
-        <h2>Napiš mi vzkaz:</h2>
-        <form class="message-form" id="messageForm">
-            <div class="form-group">
-                <label for="name">Jméno:</label>
-                <input type="text" id="name" required>
+    <div class="main-container">
+        <h1>Bára běží půlmaraton</h1>
+        <div id="countdown"></div>
+        <div class="image-gallery">
+            <img src="https://images.unsplash.com/photo-1551892589-865f69869478?auto=format&fit=crop&w=200" alt="Běžec na závodě">
+            <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=200" alt="Unavená běžkyně">
+            <img src="https://images.unsplash.com/photo-1605328037533-0c7f2c4e856d?auto=format&fit=crop&w=200" alt="Běžci v tréninku">
+        </div>
+        <div class="container">
+            <a class="event-link" href="https://www.runczech.com/cs/akce/generali-1-2maraton-praha-2025" target="_blank">Více o závodu</a>
+            <div class="tracker">
+                <p>Sleduj jak mi to jde:</p>
+                <iframe height='454' width='300' frameborder='0' allowtransparency='true' scrolling='no' src='https://www.strava.com/athletes/70581435/latest-rides/ed8d1dec8bea5ea1e6ea9922c11ecc26ef459a6c'></iframe>
             </div>
-            <div class="form-group">
-                <label for="message">Vzkaz:</label>
-                <textarea id="message" required></textarea>
-            </div>
-            <button type="submit">Odeslat vzkaz</button>
-        </form>
-        <div class="messages" id="messagesList"></div>
+        </div>
     </div>
-
     <script>
-        // Firebase konfigurace - TOTO NAHRAĎTE SVÝMI ÚDAJI z Firebase Console
-    const firebaseConfig = {
-    apiKey: "AIzaSyBxmVkecFPqe16y0QSfJUzEX-HVTQJHcDQ",
-    authDomain: "halfmarathonlfg.firebaseapp.com",
-    databaseURL: "https://halfmarathonlfg-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "halfmarathonlfg",
-    storageBucket: "halfmarathonlfg.firebasestorage.app",
-    messagingSenderId: "576641845481",
-    appId: "1:576641845481:web:b9804d22afc2fd3fcf0878",
-    measurementId: "G-2EHT70ZT4Y"
-    };
-
-        // Inicializace Firebase
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-        const messagesRef = database.ref('messages');
-
-        // Správa vzkazů
-        function loadMessages() {
-            messagesRef.on('value', (snapshot) => {
-                const messages = [];
-                snapshot.forEach((childSnapshot) => {
-                    messages.push({
-                        id: childSnapshot.key,
-                        ...childSnapshot.val()
-                    });
-                });
-                
-                // Seřazení zpráv od nejnovější
-                messages.sort((a, b) => new Date(b.date) - new Date(a.date));
-                
-                const messagesHTML = messages.map(msg => `
-                    <div class="message">
-                        <div class="message-header">${msg.name}</div>
-                        <div>${msg.message}</div>
-                        <div class="message-date">${new Date(msg.date).toLocaleString()}</div>
-                    </div>
-                `).join('');
-                
-                document.getElementById('messagesList').innerHTML = messagesHTML;
-            });
-        }
-
-        function saveMessage(name, message) {
-            return messagesRef.push({
-                name: name,
-                message: message,
-                date: new Date().toISOString()
-            });
-        }
-
-        // Event listener pro formulář
-        document.getElementById('messageForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const name = document.getElementById('name').value;
-            const message = document.getElementById('message').value;
-            
-            if (name && message) {
-                try {
-                    await saveMessage(name, message);
-                    this.reset();
-                } catch (error) {
-                    alert('Nepodařilo se odeslat vzkaz. Zkuste to prosím později.');
-                    console.error('Error saving message:', error);
-                }
-            }
-        });
-
-        // Inicializace načtení zpráv
-        loadMessages();
-
-        // Countdown funkce zůstává stejná
         function updateCountdown() {
-            const targetDate = new Date('2025-04-05T10:00:00');
-            const now = new Date();
-            const difference = targetDate - now;
+            const raceDate = new Date("April 5, 2025 10:00:00").getTime();
+            const now = new Date().getTime();
+            const timeLeft = raceDate - now;
 
-            if (difference <= 0) {
-                document.querySelector('.countdown-label').innerHTML = '<h2>Závod začal! Držíme palce! 🎉</h2>';
-                return;
-            }
+            const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
 
-            const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-
-            document.getElementById('days').textContent = String(days).padStart(2, '0');
-            document.getElementById('hours').textContent = String(hours).padStart(2, '0');
-            document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
-            document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+            document.getElementById("countdown").innerHTML = `${days} dní ${hours} hodin ${minutes} minut ${seconds} sekund`;
         }
-
         setInterval(updateCountdown, 1000);
         updateCountdown();
     </script>
