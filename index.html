@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bára poběží půlmaraton</title>
+    <title>Bára běží půlmaraton</title>
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
@@ -74,17 +74,18 @@
             margin-left: 5px;
         }
         .race-image {
-            max-width: 100%;
+            max-width: 50%;
             height: auto;
             margin-top: 20px;
             border-radius: 10px;
+            max-height: 300px;
         }
     </style>
 </head>
 <body>
     <div class="main-container">
-        <h1>Bára poběží půlmaraton</h1>
-        <img src="https://i.imgur.com/B8Qs6Mw.jpeg" alt="Půlmaraton medaile" class="race-image">
+        <h1>Bára běží půlmaraton</h1>
+        <img src="starobrno (1).jpg" alt="Půlmaraton medaile" class="race-image">
         <div id="countdown"></div>
         <script>
             function updateCountdown() {
@@ -104,11 +105,11 @@
         <h2>Sleduj jak mi to jde:</h2>
         <iframe height='454' width='300' frameborder='0' allowtransparency='true' scrolling='no' src='https://www.strava.com/athletes/70581435/latest-rides/ed8d1dec8bea5ea1e6ea9922c11ecc26ef459a6c'></iframe>
         <div class="container">
-            <h2>Napiš mi:</h2>
+            <h2>Napiš mi vzkaz:</h2>
             <form id="messageForm">
                 <div class="form-group">
                     <input type="text" id="name" placeholder="Jméno" required>
-                    <textarea id="message" placeholder="Piš" required></textarea>
+                    <textarea id="message" placeholder="Vzkaz" required></textarea>
                 </div>
                 <div class="form-container">
                     <button type="submit">Odeslat vzkaz</button>
