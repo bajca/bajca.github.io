@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Poběží Bára půlmaraton?</title>
+    <title>Bára běží půlmaraton</title>
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
@@ -29,6 +29,7 @@
             font-size: 2rem;
             margin-top: 10px;
             font-weight: bold;
+            color: #d9534f;
         }
         .container {
             max-width: 600px;
@@ -87,9 +88,8 @@
                 const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
                 const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                 const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
                 
-                document.getElementById("countdown").innerHTML = `${days} dní ${hours} hodin ${minutes} minut ${seconds} sekund`;
+                document.getElementById("countdown").innerHTML = `${days} dní ${hours} hodin ${minutes} minut`;
             }
             setInterval(updateCountdown, 1000);
             updateCountdown();
