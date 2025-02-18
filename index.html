@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bára běží půlmaraton</title>
+    <title>Poběží Bára půlmaraton?</title>
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
@@ -76,12 +76,28 @@
 </head>
 <body>
     <div class="main-container">
-        <h1>Bára poběží půlmaraton</h1>
+        <h1>Bára běží půlmaraton</h1>
         <div id="countdown"></div>
+        <script>
+            function updateCountdown() {
+                const raceDate = new Date("April 5, 2025 10:00:00").getTime();
+                const now = new Date().getTime();
+                const timeLeft = raceDate - now;
+                
+                const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+                
+                document.getElementById("countdown").innerHTML = `${days} dní ${hours} hodin ${minutes} minut ${seconds} sekund`;
+            }
+            setInterval(updateCountdown, 1000);
+            updateCountdown();
+        </script>
         <h2>Sleduj jak mi to jde:</h2>
         <iframe height='454' width='300' frameborder='0' allowtransparency='true' scrolling='no' src='https://www.strava.com/athletes/70581435/latest-rides/ed8d1dec8bea5ea1e6ea9922c11ecc26ef459a6c'></iframe>
         <div class="container">
-            <h2>Napiš mi:</h2>
+            <h2>Napiš mi vzkaz:</h2>
             <form id="messageForm">
                 <div class="form-group">
                     <input type="text" id="name" placeholder="Jméno" required>
@@ -94,64 +110,5 @@
             <div id="messagesList"></div>
         </div>
     </div>
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyBxmVkecFPqe16y0QSfJUzEX-HVTQJHcDQ",
-            authDomain: "halfmarathonlfg.firebaseapp.com",
-            databaseURL: "https://halfmarathonlfg-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "halfmarathonlfg",
-            storageBucket: "halfmarathonlfg.firebasestorage.app",
-            messagingSenderId: "576641845481",
-            appId: "1:576641845481:web:b9804d22afc2fd3fcf0878"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-        const messagesRef = database.ref('messages');
-        document.getElementById('messageForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const name = document.getElementById('name').value;
-            const message = document.getElementById('message').value;
-            if (name && message) {
-                await messagesRef.push({ name, message, date: new Date().toISOString(), replies: [] });
-                this.reset();
-            }
-        });
-        function deleteMessage(id) {
-            messagesRef.child(id).remove();
-        }
-        function replyMessage(id) {
-            const replyText = prompt("Napiš odpověď:");
-            if (replyText) {
-                messagesRef.child(id).child("replies").push({ name: "Bára", message: replyText, date: new Date().toISOString() });
-            }
-        }
-        messagesRef.on('value', (snapshot) => {
-            let messagesHTML = '';
-            snapshot.forEach(childSnapshot => {
-                const msg = childSnapshot.val();
-                let repliesHTML = '';
-                if (msg.replies) {
-                    Object.values(msg.replies).forEach(reply => {
-                        repliesHTML += `<div class="reply-container">
-                                            <div class="message-header">${reply.name}</div>
-                                            <div>${reply.message}</div>
-                                            <div class="message-date">${new Date(reply.date).toLocaleString()}</div>
-                                        </div>`;
-                    });
-                }
-                messagesHTML += `<div class="message">
-                                    <div>
-                                        <div class="message-header">${msg.name}</div>
-                                        <div>${msg.message}</div>
-                                        <div class="message-date">${new Date(msg.date).toLocaleString()}</div>
-                                    </div>
-                                    <button class="delete-btn" onclick="deleteMessage('${childSnapshot.key}')">Smazat</button>
-                                    <button class="reply-btn" onclick="replyMessage('${childSnapshot.key}')">Odpovědět</button>
-                                </div>
-                                ${repliesHTML}`;
-            });
-            document.getElementById('messagesList').innerHTML = messagesHTML;
-        });
-    </script>
 </body>
 </html>
