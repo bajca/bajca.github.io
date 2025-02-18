@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bára běží půlmaraton</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -34,29 +37,24 @@
             border-radius: 10px;
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
         }
-        .event-link {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 10px 20px;
-            background: #5bc0de;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
+        .message {
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            color: #333;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        .image-gallery {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-top: 20px;
-        }
-        .image-gallery img {
-            width: 180px;
-            height: auto;
-            border-radius: 10px;
-        }
-        .tracker {
-            margin-top: 30px;
+        .message-header {
             font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .message-date {
+            font-size: 0.9rem;
+            color: #555;
+            margin-top: 5px;
         }
     </style>
 </head>
@@ -64,34 +62,48 @@
     <div class="main-container">
         <h1>Bára běží půlmaraton</h1>
         <div id="countdown"></div>
-        <div class="image-gallery">
-            <img src="https://images.unsplash.com/photo-1551892589-865f69869478?auto=format&fit=crop&w=200" alt="Běžec na závodě">
-            <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=200" alt="Unavená běžkyně">
-            <img src="https://images.unsplash.com/photo-1605328037533-0c7f2c4e856d?auto=format&fit=crop&w=200" alt="Běžci v tréninku">
-        </div>
+        <h2>Sleduj jak mi to jde:</h2>
+        <iframe height='454' width='300' frameborder='0' allowtransparency='true' scrolling='no' src='https://www.strava.com/athletes/70581435/latest-rides/ed8d1dec8bea5ea1e6ea9922c11ecc26ef459a6c'></iframe>
         <div class="container">
-            <a class="event-link" href="https://www.runczech.com/cs/akce/generali-1-2maraton-praha-2025" target="_blank">Více o závodu</a>
-            <div class="tracker">
-                <p>Sleduj jak mi to jde:</p>
-                <iframe height='454' width='300' frameborder='0' allowtransparency='true' scrolling='no' src='https://www.strava.com/athletes/70581435/latest-rides/ed8d1dec8bea5ea1e6ea9922c11ecc26ef459a6c'></iframe>
-            </div>
+            <h2>Napiš mi vzkaz:</h2>
+            <form id="messageForm">
+                <input type="text" id="name" placeholder="Jméno" required>
+                <textarea id="message" placeholder="Vzkaz" required></textarea>
+                <button type="submit">Odeslat vzkaz</button>
+            </form>
+            <div id="messagesList"></div>
         </div>
     </div>
     <script>
-        function updateCountdown() {
-            const raceDate = new Date("April 5, 2025 10:00:00").getTime();
-            const now = new Date().getTime();
-            const timeLeft = raceDate - now;
-
-            const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-
-            document.getElementById("countdown").innerHTML = `${days} dní ${hours} hodin ${minutes} minut ${seconds} sekund`;
-        }
-        setInterval(updateCountdown, 1000);
-        updateCountdown();
+        const firebaseConfig = {
+            apiKey: "AIzaSyBxmVkecFPqe16y0QSfJUzEX-HVTQJHcDQ",
+            authDomain: "halfmarathonlfg.firebaseapp.com",
+            databaseURL: "https://halfmarathonlfg-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "halfmarathonlfg",
+            storageBucket: "halfmarathonlfg.firebasestorage.app",
+            messagingSenderId: "576641845481",
+            appId: "1:576641845481:web:b9804d22afc2fd3fcf0878"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const messagesRef = database.ref('messages');
+        document.getElementById('messageForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const message = document.getElementById('message').value;
+            if (name && message) {
+                await messagesRef.push({ name, message, date: new Date().toISOString() });
+                this.reset();
+            }
+        });
+        messagesRef.on('value', (snapshot) => {
+            let messagesHTML = '';
+            snapshot.forEach(childSnapshot => {
+                const msg = childSnapshot.val();
+                messagesHTML += `<div class="message"><div class="message-header">${msg.name}</div><div>${msg.message}</div><div class="message-date">${new Date(msg.date).toLocaleString()}</div></div>`;
+            });
+            document.getElementById('messagesList').innerHTML = messagesHTML;
+        });
     </script>
 </body>
 </html>
